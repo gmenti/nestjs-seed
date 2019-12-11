@@ -4,17 +4,17 @@ import { UserService } from './user.service';
 
 @Injectable()
 export class UserSchedule extends NestSchedule {
-
-  constructor(
-    private readonly userService: UserService,
-  ) {
+  constructor(private readonly userService: UserService) {
     super();
   }
 
   @Interval(1000)
   async runFetch() {
     const fetchedIds = await this.userService.fetch();
-    // tslint:disable-next-line:no-console
-    console.log({ fetchedIds });
+
+    if (fetchedIds.length) {
+      // tslint:disable-next-line:no-console
+      console.log({ fetchedIds });
+    }
   }
 }

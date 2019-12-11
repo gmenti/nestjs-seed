@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { JsonplaceholderService } from 'src/jsonplaceholder/jsonplaceholder.service';
+import { JsonplaceholderService } from '../jsonplaceholder/jsonplaceholder.service';
+import { User } from './user.entity';
+import { ResourceNotFoundError } from 'src/shared/exceptions/resource-not-found.exception';
 
 @Injectable()
 export class UserService {
-
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jsonplaceholderService: JsonplaceholderService,
@@ -22,11 +23,15 @@ export class UserService {
     );
   }
 
-  findByIdOrFail(id: string) {
-    return this.userRepository.findOneOrFail(id);
+  async list() {
+    return await this.userRepository.find();
   }
 
-  list() {
-    return this.userRepository.find();
+  async listById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ id });
+    if (!user) {
+      throw new ResourceNotFoundError();
+    }
+    return user;
   }
 }

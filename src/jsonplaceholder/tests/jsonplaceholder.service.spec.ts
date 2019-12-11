@@ -2,8 +2,8 @@ import { HttpModule, HttpService } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AxiosResponse } from 'axios';
 import { of } from 'rxjs';
-import { JsonplaceholderService } from './jsonplaceholder.service';
-import { JsonplaceholderUser } from './jsonplaceholder-user.model';
+import { JsonplaceholderService } from '../jsonplaceholder.service';
+import { JsonplaceholderUser } from '../interfaces/jsonplaceholder-user.interface';
 
 describe('JsonplaceholderService', () => {
   let service: JsonplaceholderService;
@@ -26,12 +26,14 @@ describe('JsonplaceholderService', () => {
   describe('#findUsers', () => {
     it('should return users on call "GET /users" in http service', async () => {
       const result: AxiosResponse = {
-        data: [{
-          id: 1,
-          name: 'fernando',
-          username: 'nando',
-          email: 'nando@4all.com',
-        }],
+        data: [
+          {
+            id: 1,
+            name: 'fernando',
+            username: 'nando',
+            email: 'nando@4all.com',
+          },
+        ],
         status: 200,
         statusText: 'OK',
         headers: {},
@@ -40,8 +42,14 @@ describe('JsonplaceholderService', () => {
 
       jest.spyOn(httpService, 'get').mockImplementation(() => of(result));
 
-      expect(await service.findUsers())
-        .toEqual(result.data.map(item => new JsonplaceholderUser(item)));
+      expect(await service.findUsers()).toEqual(
+        result.data.map(({ id, name, username, email }) => ({
+          id,
+          name,
+          username,
+          email,
+        })),
+      );
     });
 
     it('should return empty array when response data is empty', async () => {
@@ -60,13 +68,15 @@ describe('JsonplaceholderService', () => {
 
     it('should remove extra propertiers returned from api response data', async () => {
       const result: AxiosResponse = {
-        data: [{
-          id: 1,
-          name: 'fernando',
-          username: 'nando',
-          email: 'nando@4all.com',
-          unknownField: 'ola',
-        }],
+        data: [
+          {
+            id: 1,
+            name: 'fernando',
+            username: 'nando',
+            email: 'nando@4all.com',
+            unknownField: 'ola',
+          },
+        ],
         status: 200,
         statusText: 'OK',
         headers: {},
@@ -75,8 +85,14 @@ describe('JsonplaceholderService', () => {
 
       jest.spyOn(httpService, 'get').mockImplementation(() => of(result));
 
-      expect(await service.findUsers())
-        .toEqual(result.data.map(item => new JsonplaceholderUser(item)));
+      expect(await service.findUsers()).toEqual(
+        result.data.map(({ id, name, username, email }) => ({
+          id,
+          name,
+          username,
+          email,
+        })),
+      );
     });
   });
 });
